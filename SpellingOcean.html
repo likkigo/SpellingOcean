@@ -1,0 +1,524 @@
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Spelling Ocean - Underwater Adventure</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdn.jsdelivr.net/npm/font-awesome@4.7.0/css/font-awesome.min.css" rel="stylesheet">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        ocean: { 100: '#e0f7ff', 200: '#b3ecff', 300: '#80dfff', 400: '#4dd2ff', 500: '#26c6ff', 600: '#00b8e6', 700: '#0099cc', 800: '#007bb3', 900: '#005c80' },
+                        jelly: { pink: '#ff9eaa', purple: '#c79ef7', blue: '#91d1e8', cyan: '#8ef0e6', yellow: '#ffeaa7' }
+                    },
+                    animation: {
+                        // 加快泡泡移动速度 + 增大运动幅度
+                        'bubble-wander-fast': 'bubbleWander 4s ease-in-out infinite',
+                        'bubble-wander-medium': 'bubbleWander 6s ease-in-out infinite',
+                        'bubble-wander-slow': 'bubbleWander 8s ease-in-out infinite',
+                        'confetti-fall': 'confettiFall 8s ease-in-out infinite',
+                        'bubble-float': 'bubbleFloat 4s ease-in-out infinite',
+                        'bubble-float-slow': 'bubbleFloat 6s ease-in-out infinite',
+                        'bubble-float-fast': 'bubbleFloat 2.5s ease-in-out infinite',
+                        // 替换：金色胖圆爆炸动画
+                        'star-explode': 'starExplode 3s ease-out infinite',
+                        'star-spin': 'starSpin 4s linear infinite',
+                        'star-fall': 'starFall 8s ease-in-out infinite'
+                    },
+                    keyframes: {
+                        bubbleFloat: {
+                            '0%,100%': { transform: 'translateY(0) translateX(0) rotate(0deg)' },
+                            '25%': { transform: 'translateY(-20px) translateX(15px) rotate(15deg)' },
+                            '75%': { transform: 'translateY(-10px) translateX(-15px) rotate(-15deg)' }
+                        },
+                        bubbleWander: {
+                            '0%': { transform: 'translate(0, 0) rotate(0deg)' },
+                            '25%': { transform: 'translate(70px, -50px) rotate(20deg)' },
+                            '50%': { transform: 'translate(-40px, -80px) rotate(-16deg)' },
+                            '75%': { transform: 'translate(90px, 40px) rotate(30deg)' },
+                            '100%': { transform: 'translate(0, 0) rotate(0deg)' }
+                        },
+                        confettiFall: {
+                            '0%': { transform: 'translateY(-100vh) rotate(0deg)' },
+                            '100%': { transform: 'translateY(100vh) rotate(720deg)' }
+                        },
+                        // 新增：金色胖圆爆炸动画
+                        starExplode: {
+                            '0%': { transform: 'scale(0) rotate(0deg)', opacity: 1 },
+                            '50%': { transform: 'scale(6) rotate(180deg)', opacity: 0.9 },
+                            '100%': { transform: 'scale(12) rotate(360deg)', opacity: 0 }
+                        },
+                        starSpin: {
+                            '0%': { transform: 'rotate(0deg)' },
+                            '100%': { transform: 'rotate(360deg)' }
+                        },
+                        starFall: {
+                            '0%': { transform: 'translateY(-100vh) rotate(0deg)', opacity: 1 },
+                            '100%': { transform: 'translateY(100vh) rotate(720deg)', opacity: 0 }
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <style type="text/tailwindcss">
+        @layer utilities {
+            .bubble-letter {
+                background: radial-gradient(circle at 30% 30%, rgba(255,255,255,0.3), rgba(255,255,255,0.05));
+                border: 2px solid rgba(255,255,255,0.8);
+                backdrop-filter: blur(10px);
+                -webkit-backdrop-filter: blur(10px);
+                box-shadow: 
+                  0 0 30px rgba(145,209,232,0.6), 
+                  inset 0 0 20px rgba(255,255,255,0.4),
+                  0 5px 15px rgba(0,0,0,0.1);
+                border-radius: 50%;
+                cursor: pointer;
+                transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                margin: 0.5rem;
+                flex-shrink: 0;
+                position: relative;
+                overflow: hidden;
+            }
+
+            .bubble-letter::before {
+                content: '';
+                position: absolute;
+                top: -50%;
+                left: -50%;
+                width: 200%;
+                height: 200%;
+                background: radial-gradient(circle, rgba(255,255,255,0.4) 0%, transparent 70%);
+                transform: rotate(45deg);
+                opacity: 0.3;
+            }
+
+            .bubble-letter:hover {
+                transform: scale(1.15);
+                border-color: #fff;
+                animation-play-state: paused !important;
+                box-shadow: 
+                  0 0 40px rgba(145,209,232,0.8), 
+                  inset 0 0 30px rgba(255,255,255,0.6),
+                  0 8px 25px rgba(0,0,0,0.15);
+            }
+
+            .bubble-letter-active {
+                background: radial-gradient(circle at 30% 30%, rgba(200,158,247,0.6), rgba(200,158,247,0.2));
+                border-color: rgba(200,158,247,1);
+                box-shadow: 
+                  0 0 35px rgba(200,158,247,0.8), 
+                  inset 0 0 25px rgba(255,255,255,0.5),
+                  0 5px 15px rgba(0,0,0,0.1);
+            }
+
+            .bubble-letter-correct {
+                background: radial-gradient(circle at 30% 30%, rgba(142,240,230,0.7), rgba(142,240,230,0.25));
+                border-color: rgba(142,240,230,1);
+                animation-play-state: paused !important;
+                box-shadow: 
+                  0 0 35px rgba(142,240,230,0.8), 
+                  inset 0 0 25px rgba(255,255,255,0.5),
+                  0 5px 15px rgba(0,0,0,0.1);
+            }
+
+            /* 优化：清晰的立体字体效果 - 减少重影，增强可读性 */
+            .celebration-font {
+                font-family: 'Arial Black', 'Impact', 'Arial Bold', sans-serif;
+                font-weight: 900;
+                color: #ffffff;
+                /* 简化阴影层次，避免重影，增强立体感 */
+                text-shadow: 
+                  0 2px 0 #d4af37, /* 金色底层阴影 */
+                  0 4px 0 #b8860b, /* 深金色第二层 */
+                  0 0 10px rgba(255,215,0,0.8), /* 金色光晕 */
+                  0 4px 8px rgba(0,0,0,0.5); /* 轻微黑色阴影增加对比 */
+                letter-spacing: 1px; /* 减少字母间距，提升清晰度 */
+            }
+
+            /* 开始界面专用字体 - 保持原有简洁风格 */
+            .start-font {
+                font-family: 'Arial', sans-serif;
+                font-weight: bold;
+                color: #ffffff;
+                text-shadow: 0 2px 4px rgba(0,0,0,0.3);
+            }
+
+            .progress-box {
+                border: 3px solid rgba(255,255,255,0.7);
+                border-radius: 12px;
+                background: rgba(255,255,255,0.1);
+                backdrop-filter: blur(5px);
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                aspect-ratio: 1/1;
+            }
+
+            .bubble-container {
+                display: flex;
+                flex-wrap: wrap;
+                justify-content: center;
+                align-items: center;
+                gap: 0.5rem 0.8rem;
+                min-height: 280px;
+                padding: 1.5rem;
+                overflow: visible;
+            }
+
+            .control-btn {
+                background: rgba(255,158,170,0.8);
+                border: 2px solid #fff;
+                color: #fff;
+                padding: 0.5rem 1.2rem;
+                border-radius: 8px;
+                font-weight: bold;
+                transition: all 0.3s;
+                text-shadow: 0 2px 4px rgba(0,0,0,0.3);
+                box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+            }
+
+            .control-btn:hover { 
+                background: rgba(255,158,170,1); 
+                transform: scale(1.05); 
+                box-shadow: 0 6px 20px rgba(0,0,0,0.3);
+            }
+
+            /* 替换：圆角胖圆可爱版星星样式 */
+            .golden-star {
+                position: absolute;
+                pointer-events: none;
+                z-index: 100;
+                /* 胖圆可爱形状 - 高圆角矩形，替代尖锐星星 */
+                border-radius: 50% 50% 50% 50% / 60% 60% 40% 40%;
+            }
+
+            /* 圆角胖圆星星飘落样式 */
+            .falling-star {
+                position: absolute;
+                pointer-events: none;
+                z-index: 99;
+                /* 更圆润的胖圆形状 */
+                border-radius: 50%;
+                animation: starFall 6s ease-in-out infinite, starSpin 4s linear infinite;
+            }
+        }
+    </style>
+</head>
+<body class="min-h-screen overflow-x-hidden relative font-sans pb-16" style="background-image: url('https://p5-flow-imagex-sign.byteimg.com/tos-cn-i-a9rns2rl98/rc/pc/super_tool/91e3d7ffee534446aa40143f4d7c1c3e~tplv-a9rns2rl98-image.image?lk3s=8e244e95&amp;rcl=2026020103511452095B3C2902C42F9055&amp;rrcfp=f06b921b&amp;x-expires=1772481103&amp;x-signature=NQIcRfZn5UGpR%2BCs7iPuYaJI1jo%3D'); background-size: cover; background-position: center; background-attachment: fixed;">
+    <div id="bg-bubbles" class="absolute inset-0 pointer-events-none z-0"></div>
+    <div id="confetti-container" class="absolute inset-0 pointer-events-none z-40 hidden"></div>
+    
+    <!-- 总分界面：使用优化后的庆祝字体 -->
+    <div id="score-mask" class="fixed inset-0 bg-black/60 backdrop-blur-md flex flex-col items-center justify-center z-50 hidden">
+        <div id="celebration-fireworks" class="absolute inset-0 pointer-events-none z-45"></div>
+        <h2 class="celebration-font text-white text-6xl md:text-8xl mb-8 drop-shadow-2xl">Excellent Work!</h2>
+        <p class="celebration-font text-jelly-yellow text-9xl md:text-[10rem] mb-4" id="total-score">0</p>
+        <p class="celebration-font text-white text-4xl md:text-5xl mt-2">Total Score</p>
+        <p id="time-bonus-text" class="celebration-font text-jelly-cyan text-2xl md:text-3xl mt-6">Time Bonus: +0 (0s left)</p>
+        <button onclick="location.reload()" class="mt-10 control-btn text-3xl px-16 py-6 celebration-font">Play Again</button>
+    </div>
+
+    <!-- 右上角计时/计分：使用优化后的庆祝字体 -->
+    <div class="absolute top-6 right-6 z-30 flex flex-col gap-3">
+        <div class="bg-white/20 backdrop-blur-md border-2 border-white/50 px-6 py-2 rounded-2xl shadow-lg">
+            <p class="celebration-font text-2xl">Time: <span id="countdown" class="text-jelly-yellow">03:00</span></p>
+        </div>
+        <div class="bg-white/20 backdrop-blur-md border-2 border-white/50 px-6 py-2 rounded-2xl shadow-lg">
+            <p class="celebration-font text-2xl">Score: <span id="current-score" class="text-jelly-yellow">0</span></p>
+        </div>
+        <button id="music-control" class="control-btn bg-jelly-blue/80">
+            <i class="fa fa-music"></i> <span id="music-text" class="start-font">Music On</span>
+        </button>
+    </div>
+
+    <!-- 主内容区：开始界面使用 start-font，游戏标题使用 celebration-font -->
+    <div class="max-w-5xl mx-auto px-4 py-12 relative z-20">
+        <h1 class="text-center celebration-font text-5xl md:text-7xl mb-12 drop-shadow-xl">
+            <span class="text-white">Spelling</span> <span class="text-jelly-pink">Ocean</span>
+        </h1>
+
+        <!-- 开始界面：使用 start-font 保持原有样式 -->
+        <div id="input-section" class="bg-white/20 backdrop-blur-lg rounded-3xl p-8 shadow-2xl mx-auto max-w-2xl">
+            <div class="flex justify-between items-center mb-6">
+                <h2 class="start-font text-2xl text-white">Enter Words</h2>
+                <button id="clear-memory" class="text-sm opacity-80 hover:opacity-100 text-white underline start-font">Clear Memory</button>
+            </div>
+            <textarea id="word-input" placeholder="one word per line..." class="w-full h-48 p-4 rounded-xl bg-white/90 text-ocean-900 font-bold text-xl mb-4 focus:ring-4 focus:ring-jelly-purple/50 outline-none"></textarea>
+            <input type="text" id="bonus-word" placeholder="Bonus word (20 pts)..." class="w-full p-4 rounded-xl bg-white/90 text-ocean-900 font-bold text-xl mb-6 outline-none">
+            <button id="save-play-btn" class="bg-jelly-purple w-full text-white py-4 rounded-full shadow-lg hover:brightness-110 transition-all start-font text-2xl">
+                START ADVENTURE <i class="fa fa-play ml-2"></i>
+            </button>
+        </div>
+
+        <!-- 游戏界面：使用优化后的 celebration-font -->
+        <div id="game-section" class="hidden">
+            <div id="spell-progress" class="flex justify-center gap-4 mb-12"></div>
+            <div id="letter-bubbles" class="bubble-container"></div>
+            <div class="flex justify-center gap-6 mt-8">
+                <button id="replay-word" class="bg-jelly-blue text-white px-8 py-4 rounded-full shadow-xl celebration-font hover:scale-105 transition-all">
+                    <i class="fa fa-volume-up mr-2"></i>Hear Word
+                </button>
+                <button id="back-input-btn" class="bg-white/20 text-white px-8 py-4 rounded-full shadow-xl celebration-font border border-white/30 hover:bg-white/30 transition-all">
+                    Edit List
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <audio id="bg-music" src="https://assets.mixkit.co/sfx/preview/mixkit-happy-ukulele-123284.mp3" loop=""></audio>
+    <audio id="bubble-sound" src="https://assets.mixkit.co/sfx/preview/mixkit-bubble-pop-121623.mp3"></audio>
+    <audio id="correct-sound" src="https://assets.mixkit.co/sfx/preview/mixkit-game-win-6101.mp3"></audio>
+    <audio id="wrong-sound" src="https://assets.mixkit.co/sfx/preview/mixkit-error-126627.mp3"></audio>
+
+    <script>
+        // 初始化全局变量
+        let wordList = [], currentWordIndex = 0, currentSpellIndex = 0, currentScore = 0;
+        let remainingSeconds = 180, countdownTimer = null, isGameOver = false;
+
+        // 核心修复 1: 补全 animate- 前缀，让泡泡动起来
+        function getBubbleStyle(letterCount) {
+            const isMobile = window.innerWidth <= 768;
+            let size, font;
+            if (isMobile) {
+                size = letterCount > 6 ? 'w-14 h-14' : 'w-16 h-16';
+                font = letterCount > 6 ? 'text-xl' : 'text-2xl';
+            } else {
+                size = letterCount > 6 ? 'w-24 h-24' : 'w-28 h-28';
+                font = letterCount > 6 ? 'text-3xl' : 'text-4xl';
+            }
+            // 这里必须加 animate- 前缀
+            const animations = ['animate-bubble-wander-fast', 'animate-bubble-wander-medium', 'animate-bubble-wander-slow'];
+            const wanderSpeed = animations[Math.floor(Math.random() * animations.length)];
+            const animateDelay = `${Math.random() * 5}s`;
+            return { size, font, wanderSpeed, animateDelay };
+        }
+
+        // 核心修复 2: 增强语音引擎稳定性
+        function speakWord(word) {
+            if (!word) return;
+            window.speechSynthesis.cancel(); // 清空排队
+            const utterance = new SpeechSynthesisUtterance(word);
+            utterance.lang = 'en-US';
+            utterance.rate = 0.9;
+            utterance.pitch = 1.1;
+
+            // 寻找更自然的英文女声
+            const voices = window.speechSynthesis.getVoices();
+            const preferredVoice = voices.find(v => (v.name.includes('Google') || v.name.includes('Samantha')) && v.lang.includes('en'));
+            if (preferredVoice) utterance.voice = preferredVoice;
+
+            window.speechSynthesis.speak(utterance);
+        }
+
+        // 背景气泡生成
+        function createBgBubbles() {
+            const container = document.getElementById('bg-bubbles');
+            for (let i = 0; i < 25; i++) {
+                const bubble = document.createElement('div');
+                const size = Math.random() * 60 + 20;
+                const anim = ['animate-bubble-float', 'animate-bubble-float-slow', 'animate-bubble-float-fast'][Math.floor(Math.random()*3)];
+                bubble.className = `bubble-letter absolute opacity-20 pointer-events-none ${anim}`;
+                bubble.style.width = `${size}px`; bubble.style.height = `${size}px`;
+                bubble.style.left = `${Math.random() * 100}vw`; bubble.style.top = `${Math.random() * 100}vh`;
+                bubble.style.animationDelay = `${Math.random() * 10}s`;
+                container.appendChild(bubble);
+            }
+        }
+
+        // 替换：圆角胖圆可爱版金色星星动画效果
+        function createFireworks() {
+            // 原有容器显示
+            const container = document.getElementById('confetti-container');
+            container.classList.remove('hidden');
+
+            // 新增：金色胖圆爆炸效果
+            const celebrationContainer = document.getElementById('celebration-fireworks');
+            celebrationContainer.innerHTML = ''; // 清空原有内容
+
+            // 1. 大型金色胖圆爆炸效果
+            for (let i = 0; i < 30; i++) {
+                const star = document.createElement('div');
+                const size = Math.random() * 30 + 15;
+                // 金色渐变：从亮金到暗金
+                const goldColors = ['#FFD700', '#F0E68C', '#DAA520', '#B8860B', '#FFC107'];
+                const color = goldColors[Math.floor(Math.random() * goldColors.length)];
+
+                star.className = 'golden-star animate-star-explode';
+                star.style.width = `${size}px`;
+                star.style.height = `${size}px`;
+                star.style.backgroundColor = color;
+                star.style.left = `${Math.random() * 100}vw`;
+                star.style.top = `${Math.random() * 100}vh`;
+                star.style.animationDelay = `${Math.random() * 5}s`;
+                // 金色光晕
+                star.style.boxShadow = `0 0 ${size}px ${color}, 0 0 ${size*2}px rgba(255,215,0,0.5)`;
+
+                celebrationContainer.appendChild(star);
+            }
+
+            // 2. 飘落的金色小胖圆效果
+            for (let i = 0; i < 150; i++) {
+                const star = document.createElement('div');
+                const size = Math.random() * 12 + 6;
+                const goldColors = ['#FFD700', '#F0E68C', '#DAA520', '#FFC107'];
+                const color = goldColors[Math.floor(Math.random() * goldColors.length)];
+
+                star.className = 'falling-star';
+                star.style.width = `${size}px`;
+                star.style.height = `${size}px`;
+                star.style.backgroundColor = color;
+                star.style.left = `${Math.random() * 100}vw`;
+                star.style.top = `${Math.random() * -100}vh`;
+                star.style.animationDelay = `${Math.random() * 10}s`;
+                star.style.transform = `rotate(${Math.random() * 360}deg)`;
+                // 轻微光晕
+                star.style.boxShadow = `0 0 ${size}px ${color}`;
+
+                celebrationContainer.appendChild(star);
+            }
+        }
+
+        // 游戏逻辑
+        function renderGame() {
+            const wordObj = wordList[currentWordIndex];
+            const letters = wordObj.en.split('');
+            currentSpellIndex = 0;
+
+            // 进度条
+            const progress = document.getElementById('spell-progress');
+            progress.innerHTML = '';
+            const { size, font } = getBubbleStyle(letters.length);
+            letters.forEach(() => {
+                const box = document.createElement('div');
+                box.className = `progress-box ${size} ${font} celebration-font`;
+                progress.appendChild(box);
+            });
+
+            // 字母泡泡
+            const container = document.getElementById('letter-bubbles');
+            container.innerHTML = '';
+            // 混淆逻辑 (简易版)
+            let displayLetters = [...letters];
+            const alphabet = 'abcdefghijklmnopqrstuvwxyz';
+            while(displayLetters.length < letters.length + 3) {
+                const randomChar = alphabet[Math.floor(Math.random()*26)];
+                if(!displayLetters.includes(randomChar)) displayLetters.push(randomChar);
+            }
+            displayLetters = displayLetters.sort(() => Math.random() - 0.5);
+
+            displayLetters.forEach(char => {
+                const style = getBubbleStyle(letters.length);
+                const bubble = document.createElement('div');
+                bubble.className = `bubble-letter ${style.size} ${style.wanderSpeed}`;
+                bubble.style.animationDelay = style.animateDelay;
+                bubble.innerHTML = `<span class="celebration-font ${style.font}">${char}</span>`;
+                bubble.onclick = () => {
+                    if(isGameOver) return;
+                    if(char === letters[currentSpellIndex]) {
+                        playSound('bubble-sound');
+                        bubble.classList.add('bubble-letter-correct');
+                        bubble.style.pointerEvents = 'none';
+                        progress.children[currentSpellIndex].innerText = char;
+                        currentSpellIndex++;
+                        if(currentSpellIndex === letters.length) {
+                            playSound('correct-sound');
+                            currentScore += wordObj.score;
+                            document.getElementById('current-score').innerText = currentScore;
+                            setTimeout(nextWord, 1000);
+                        }
+                    } else {
+                        playSound('wrong-sound');
+                        currentScore = Math.max(0, currentScore - 5);
+                        document.getElementById('current-score').innerText = currentScore;
+                        bubble.classList.add('bubble-letter-active');
+                        setTimeout(() => bubble.classList.remove('bubble-letter-active'), 500);
+                    }
+                };
+                container.appendChild(bubble);
+            });
+            speakWord(wordObj.en);
+        }
+
+        function nextWord() {
+            currentWordIndex++;
+            if(currentWordIndex < wordList.length) renderGame();
+            else finishGame();
+        }
+
+        function finishGame() {
+            isGameOver = true;
+            clearInterval(countdownTimer);
+            // 修改：总分 = 得分 + 剩余秒数 * 2
+            const timeBonus = remainingSeconds * 2;
+            const totalScore = currentScore + timeBonus;
+            document.getElementById('total-score').innerText = totalScore;
+            document.getElementById('time-bonus-text').innerText = `Time Bonus: +${timeBonus} (${remainingSeconds}s left × 2)`;
+            document.getElementById('score-mask').classList.remove('hidden');
+            createFireworks();
+        }
+
+        function playSound(id) {
+            const s = document.getElementById(id);
+            if(s) { s.currentTime = 0; s.play().catch(()=>{}); }
+        }
+
+        // 事件监听
+        document.getElementById('save-play-btn').onclick = () => {
+            const raw = document.getElementById('word-input').value.trim();
+            if(!raw) return alert("Please enter some words!");
+            wordList = raw.split('\n').filter(w => w.trim()).map(w => ({en: w.trim().toLowerCase(), score: 10}));
+            const bonus = document.getElementById('bonus-word').value.trim();
+            if(bonus) wordList.push({en: bonus.toLowerCase(), score: 20});
+            localStorage.setItem('spell_words', raw);
+            localStorage.setItem('spell_bonus', bonus);
+
+            document.getElementById('input-section').classList.add('hidden');
+            document.getElementById('game-section').classList.remove('hidden');
+            // 启动定时器
+            countdownTimer = setInterval(() => {
+                remainingSeconds--;
+                const m = Math.floor(remainingSeconds/60), s = remainingSeconds%60;
+                document.getElementById('countdown').innerText = `${m.toString().padStart(2,'0')}:${s.toString().padStart(2,'0')}`;
+                if(remainingSeconds <= 0) finishGame();
+            }, 1000);
+
+            renderGame();
+        };
+
+        document.getElementById('replay-word').onclick = () => speakWord(wordList[currentWordIndex].en);
+        document.getElementById('back-input-btn').onclick = () => location.reload();
+        document.getElementById('clear-memory').onclick = () => { localStorage.clear(); location.reload(); };
+
+        document.getElementById('music-control').onclick = function() {
+            const m = document.getElementById('bg-music');
+            if(m.paused) { 
+                m.play(); 
+                this.innerHTML = '<i class="fa fa-music"></i> <span id="music-text" class="start-font">Music On</span>';
+            } else { 
+                m.pause(); 
+                this.innerHTML = '<i class="fa fa-music"></i> <span id="music-text" class="start-font">Music Off</span>';
+            }
+        };
+
+        // 页面初始化
+        window.onload = () => {
+            createBgBubbles();
+            document.getElementById('word-input').value = localStorage.getItem('spell_words') || "apple\nbanana\nocean";
+            document.getElementById('bonus-word').value = localStorage.getItem('spell_bonus') || "wonderful";
+            // 预加载语音包
+            window.speechSynthesis.getVoices();
+        };
+
+        // 用户交互后激活音频上下文
+        document.body.addEventListener('click', () => {
+            document.getElementById('bg-music').play().catch(()=>{});
+        }, { once: true });
+    </script>
+</body>
+</html>

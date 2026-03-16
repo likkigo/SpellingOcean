@@ -14,7 +14,6 @@
                         jelly: { pink: '#ff9eaa', purple: '#c79ef7', blue: '#91d1e8', cyan: '#8ef0e6', yellow: '#ffeaa7' }
                     },
                     animation: {
-                        // 加快泡泡移动速度 + 增大运动幅度
                         'bubble-wander-fast': 'bubbleWander 4s ease-in-out infinite',
                         'bubble-wander-medium': 'bubbleWander 6s ease-in-out infinite',
                         'bubble-wander-slow': 'bubbleWander 8s ease-in-out infinite',
@@ -22,7 +21,6 @@
                         'bubble-float': 'bubbleFloat 4s ease-in-out infinite',
                         'bubble-float-slow': 'bubbleFloat 6s ease-in-out infinite',
                         'bubble-float-fast': 'bubbleFloat 2.5s ease-in-out infinite',
-                        // 替换：金色胖圆爆炸动画
                         'star-explode': 'starExplode 3s ease-out infinite',
                         'star-spin': 'starSpin 4s linear infinite',
                         'star-fall': 'starFall 8s ease-in-out infinite'
@@ -44,7 +42,6 @@
                             '0%': { transform: 'translateY(-100vh) rotate(0deg)' },
                             '100%': { transform: 'translateY(100vh) rotate(720deg)' }
                         },
-                        // 新增：金色胖圆爆炸动画
                         starExplode: {
                             '0%': { transform: 'scale(0) rotate(0deg)', opacity: 1 },
                             '50%': { transform: 'scale(6) rotate(180deg)', opacity: 0.9 },
@@ -127,21 +124,18 @@
                   0 5px 15px rgba(0,0,0,0.1);
             }
 
-            /* 优化：清晰的立体字体效果 - 减少重影，增强可读性 */
             .celebration-font {
                 font-family: 'Arial Black', 'Impact', 'Arial Bold', sans-serif;
                 font-weight: 900;
                 color: #ffffff;
-                /* 简化阴影层次，避免重影，增强立体感 */
                 text-shadow: 
-                  0 2px 0 #d4af37, /* 金色底层阴影 */
-                  0 4px 0 #b8860b, /* 深金色第二层 */
-                  0 0 10px rgba(255,215,0,0.8), /* 金色光晕 */
-                  0 4px 8px rgba(0,0,0,0.5); /* 轻微黑色阴影增加对比 */
-                letter-spacing: 1px; /* 减少字母间距，提升清晰度 */
+                  0 2px 0 #d4af37,
+                  0 4px 0 #b8860b,
+                  0 0 10px rgba(255,215,0,0.8),
+                  0 4px 8px rgba(0,0,0,0.5);
+                letter-spacing: 1px;
             }
 
-            /* 开始界面专用字体 - 保持原有简洁风格 */
             .start-font {
                 font-family: 'Arial', sans-serif;
                 font-weight: bold;
@@ -189,28 +183,24 @@
                 box-shadow: 0 6px 20px rgba(0,0,0,0.3);
             }
 
-            /* 替换：圆角胖圆可爱版星星样式 */
             .golden-star {
                 position: absolute;
                 pointer-events: none;
                 z-index: 100;
-                /* 胖圆可爱形状 - 高圆角矩形，替代尖锐星星 */
                 border-radius: 50% 50% 50% 50% / 60% 60% 40% 40%;
             }
 
-            /* 圆角胖圆星星飘落样式 */
             .falling-star {
                 position: absolute;
                 pointer-events: none;
                 z-index: 99;
-                /* 更圆润的胖圆形状 */
                 border-radius: 50%;
                 animation: starFall 6s ease-in-out infinite, starSpin 4s linear infinite;
             }
         }
     </style>
 </head>
-<body class="min-h-screen overflow-x-hidden relative font-sans pb-16" style="background-image: url('https://images.unsplash.com/photo-1551244072-5d12893278ab?auto=format&fit=crop&w=2000&q=80'); background-size: cover; background-position: center; background-attachment: fixed;">
+<body class="min-h-screen overflow-x-hidden relative font-sans pb-16" style="background-image: url('https://i.imgur.com/9mZJZa9.jpg'); background-size: cover; background-position: center; background-attachment: fixed;">
     <div id="bg-bubbles" class="absolute inset-0 pointer-events-none z-0"></div>
     <div id="confetti-container" class="absolute inset-0 pointer-events-none z-40 hidden"></div>
     
@@ -266,17 +256,16 @@
         </div>
     </div>
 
-    <audio id="bg-music" src="https://assets.mixkit.co/sfx/preview/mixkit-happy-ukulele-123284.mp3" loop=""></audio>
+    <!-- ✅ 欧洲可用音乐 / 音效 -->
+    <audio id="bg-music" src="https://assets.mixkit.co/sfx/preview/mixkit-happy-ukulele-children-music-123284.mp3" loop></audio>
     <audio id="bubble-sound" src="https://assets.mixkit.co/sfx/preview/mixkit-bubble-pop-121623.mp3"></audio>
-    <audio id="correct-sound" src="https://assets.mixkit.co/sfx/preview/mixkit-game-win-6101.mp3"></audio>
-    <audio id="wrong-sound" src="https://assets.mixkit.co/sfx/preview/mixkit-error-126627.mp3"></audio>
+    <audio id="correct-sound" src="https://assets.mixkit.co/sfx/preview/mixkit-animated-success-6101.mp3"></audio>
+    <audio id="wrong-sound" src="https://assets.mixkit.co/sfx/preview/mixkit-animated-error-126627.mp3"></audio>
 
     <script>
-        // 初始化全局变量
         let wordList = [], currentWordIndex = 0, currentSpellIndex = 0, currentScore = 0;
         let remainingSeconds = 180, countdownTimer = null, isGameOver = false;
 
-        // 核心修复 1: 补全 animate- 前缀，让泡泡动起来
         function getBubbleStyle(letterCount) {
             const isMobile = window.innerWidth <= 768;
             let size, font;
@@ -287,23 +276,20 @@
                 size = letterCount > 6 ? 'w-24 h-24' : 'w-28 h-28';
                 font = letterCount > 6 ? 'text-3xl' : 'text-4xl';
             }
-            // 这里必须加 animate- 前缀
             const animations = ['animate-bubble-wander-fast', 'animate-bubble-wander-medium', 'animate-bubble-wander-slow'];
             const wanderSpeed = animations[Math.floor(Math.random() * animations.length)];
             const animateDelay = `${Math.random() * 5}s`;
             return { size, font, wanderSpeed, animateDelay };
         }
 
-        // 核心修复 2: 增强语音引擎稳定性
         function speakWord(word) {
             if (!word) return;
-            window.speechSynthesis.cancel(); // 清空排队
+            window.speechSynthesis.cancel();
             const utterance = new SpeechSynthesisUtterance(word);
             utterance.lang = 'en-US';
             utterance.rate = 0.9;
             utterance.pitch = 1.1;
 
-            // 寻找更自然的英文女声
             const voices = window.speechSynthesis.getVoices();
             const preferredVoice = voices.find(v => (v.name.includes('Google') || v.name.includes('Samantha')) && v.lang.includes('en'));
             if (preferredVoice) utterance.voice = preferredVoice;
@@ -311,7 +297,6 @@
             window.speechSynthesis.speak(utterance);
         }
 
-        // 背景气泡生成
         function createBgBubbles() {
             const container = document.getElementById('bg-bubbles');
             for (let i = 0; i < 25; i++) {
@@ -326,21 +311,16 @@
             }
         }
 
-        // 替换：圆角胖圆可爱版金色星星动画效果
         function createFireworks() {
-            // 原有容器显示
             const container = document.getElementById('confetti-container');
             container.classList.remove('hidden');
 
-            // 新增：金色胖圆爆炸效果
             const celebrationContainer = document.getElementById('celebration-fireworks');
-            celebrationContainer.innerHTML = ''; // 清空原有内容
+            celebrationContainer.innerHTML = '';
 
-            // 1. 大型金色胖圆爆炸效果
             for (let i = 0; i < 30; i++) {
                 const star = document.createElement('div');
                 const size = Math.random() * 30 + 15;
-                // 金色渐变：从亮金到暗金
                 const goldColors = ['#FFD700', '#F0E68C', '#DAA520', '#B8860B', '#FFC107'];
                 const color = goldColors[Math.floor(Math.random() * goldColors.length)];
 
@@ -351,13 +331,11 @@
                 star.style.left = `${Math.random() * 100}vw`;
                 star.style.top = `${Math.random() * 100}vh`;
                 star.style.animationDelay = `${Math.random() * 5}s`;
-                // 金色光晕
                 star.style.boxShadow = `0 0 ${size}px ${color}, 0 0 ${size*2}px rgba(255,215,0,0.5)`;
 
                 celebrationContainer.appendChild(star);
             }
 
-            // 2. 飘落的金色小胖圆效果
             for (let i = 0; i < 150; i++) {
                 const star = document.createElement('div');
                 const size = Math.random() * 12 + 6;
@@ -372,20 +350,17 @@
                 star.style.top = `${Math.random() * -100}vh`;
                 star.style.animationDelay = `${Math.random() * 10}s`;
                 star.style.transform = `rotate(${Math.random() * 360}deg)`;
-                // 轻微光晕
                 star.style.boxShadow = `0 0 ${size}px ${color}`;
 
                 celebrationContainer.appendChild(star);
             }
         }
 
-        // 游戏逻辑
         function renderGame() {
             const wordObj = wordList[currentWordIndex];
             const letters = wordObj.en.split('');
             currentSpellIndex = 0;
 
-            // 进度条
             const progress = document.getElementById('spell-progress');
             progress.innerHTML = '';
             const { size, font } = getBubbleStyle(letters.length);
@@ -395,10 +370,8 @@
                 progress.appendChild(box);
             });
 
-            // 字母泡泡
             const container = document.getElementById('letter-bubbles');
             container.innerHTML = '';
-            // 混淆逻辑 (简易版)
             let displayLetters = [...letters];
             const alphabet = 'abcdefghijklmnopqrstuvwxyz';
             while(displayLetters.length < letters.length + 3) {
@@ -449,7 +422,6 @@
         function finishGame() {
             isGameOver = true;
             clearInterval(countdownTimer);
-            // 修改：总分 = 得分 + 剩余秒数 * 2
             const timeBonus = remainingSeconds * 2;
             const totalScore = currentScore + timeBonus;
             document.getElementById('total-score').innerText = totalScore;
@@ -463,7 +435,6 @@
             if(s) { s.currentTime = 0; s.play().catch(()=>{}); }
         }
 
-        // 事件监听
         document.getElementById('save-play-btn').onclick = () => {
             const raw = document.getElementById('word-input').value.trim();
             if(!raw) return alert("Please enter some words!");
@@ -475,7 +446,6 @@
 
             document.getElementById('input-section').classList.add('hidden');
             document.getElementById('game-section').classList.remove('hidden');
-            // 启动定时器
             countdownTimer = setInterval(() => {
                 remainingSeconds--;
                 const m = Math.floor(remainingSeconds/60), s = remainingSeconds%60;
@@ -501,18 +471,16 @@
             }
         };
 
-        // 页面初始化
         window.onload = () => {
             createBgBubbles();
             document.getElementById('word-input').value = localStorage.getItem('spell_words') || "apple\nbanana\nocean";
             document.getElementById('bonus-word').value = localStorage.getItem('spell_bonus') || "wonderful";
-            // 预加载语音包
             window.speechSynthesis.getVoices();
         };
 
-        // 用户交互后激活音频上下文
         document.body.addEventListener('click', () => {
-            document.getElementById('bg-music').play().catch(()=>{});
+            const bgMusic = document.getElementById('bg-music');
+            if (bgMusic.paused) bgMusic.play().catch(() => {});
         }, { once: true });
     </script>
 </body>

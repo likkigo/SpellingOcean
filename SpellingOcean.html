@@ -210,11 +210,10 @@
         }
     </style>
 </head>
-<body class="min-h-screen overflow-x-hidden relative font-sans pb-16" style="background-image: url('https://p5-flow-imagex-sign.byteimg.com/tos-cn-i-a9rns2rl98/rc/pc/super_tool/91e3d7ffee534446aa40143f4d7c1c3e~tplv-a9rns2rl98-image.image?lk3s=8e244e95&amp;rcl=2026020103511452095B3C2902C42F9055&amp;rrcfp=f06b921b&amp;x-expires=1772481103&amp;x-signature=NQIcRfZn5UGpR%2BCs7iPuYaJI1jo%3D'); background-size: cover; background-position: center; background-attachment: fixed;">
+<body class="min-h-screen overflow-x-hidden relative font-sans pb-16" style="background-image: url('https://images.unsplash.com/photo-1551244072-5d12893278ab?auto=format&fit=crop&w=2000&q=80'); background-size: cover; background-position: center; background-attachment: fixed;">
     <div id="bg-bubbles" class="absolute inset-0 pointer-events-none z-0"></div>
     <div id="confetti-container" class="absolute inset-0 pointer-events-none z-40 hidden"></div>
     
-    <!-- 总分界面：使用优化后的庆祝字体 -->
     <div id="score-mask" class="fixed inset-0 bg-black/60 backdrop-blur-md flex flex-col items-center justify-center z-50 hidden">
         <div id="celebration-fireworks" class="absolute inset-0 pointer-events-none z-45"></div>
         <h2 class="celebration-font text-white text-6xl md:text-8xl mb-8 drop-shadow-2xl">Excellent Work!</h2>
@@ -224,7 +223,6 @@
         <button onclick="location.reload()" class="mt-10 control-btn text-3xl px-16 py-6 celebration-font">Play Again</button>
     </div>
 
-    <!-- 右上角计时/计分：使用优化后的庆祝字体 -->
     <div class="absolute top-6 right-6 z-30 flex flex-col gap-3">
         <div class="bg-white/20 backdrop-blur-md border-2 border-white/50 px-6 py-2 rounded-2xl shadow-lg">
             <p class="celebration-font text-2xl">Time: <span id="countdown" class="text-jelly-yellow">03:00</span></p>
@@ -237,13 +235,11 @@
         </button>
     </div>
 
-    <!-- 主内容区：开始界面使用 start-font，游戏标题使用 celebration-font -->
     <div class="max-w-5xl mx-auto px-4 py-12 relative z-20">
         <h1 class="text-center celebration-font text-5xl md:text-7xl mb-12 drop-shadow-xl">
             <span class="text-white">Spelling</span> <span class="text-jelly-pink">Ocean</span>
         </h1>
 
-        <!-- 开始界面：使用 start-font 保持原有样式 -->
         <div id="input-section" class="bg-white/20 backdrop-blur-lg rounded-3xl p-8 shadow-2xl mx-auto max-w-2xl">
             <div class="flex justify-between items-center mb-6">
                 <h2 class="start-font text-2xl text-white">Enter Words</h2>
@@ -256,7 +252,6 @@
             </button>
         </div>
 
-        <!-- 游戏界面：使用优化后的 celebration-font -->
         <div id="game-section" class="hidden">
             <div id="spell-progress" class="flex justify-center gap-4 mb-12"></div>
             <div id="letter-bubbles" class="bubble-container"></div>

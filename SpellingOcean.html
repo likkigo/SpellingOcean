@@ -354,7 +354,7 @@
             const count = Math.floor(Math.random() * 3) + 5;
             for(let i = 0; i < count; i++) {
                 // 将烟花声音错开，产生此起彼伏的效果 (0 到 1500毫秒的随机延迟)
-                setTimeout(() => playSingleFirework(), Math.random() * 1500);
+                setTimeout(() => playSingleFirework(), 500 + Math.random() * 1500);
             }
         }
 
